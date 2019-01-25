@@ -1,0 +1,11 @@
+html,
+body,
+.app {
+  height: 100vh;
+  background: #eee;
+  padding: 1em;
+}
+
+.aqblue {
+  color : "#2689d8";
+}
