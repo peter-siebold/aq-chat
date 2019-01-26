@@ -70,7 +70,7 @@ class Login extends React.Component {
         return (
             <Grid textAlign="center" verticalAlign="middle" className="app">
                 <Grid.Column style={{maxWidth: 450}}>
-                    <Header as="h1" icon color="violet" textAlign="center">
+                    <Header as="h1" icon color="blue" textAlign="center">
                         <Icon name="puzzle piece" color="blue" />
                         Login to aq chat
                     </Header>
@@ -79,7 +79,7 @@ class Login extends React.Component {
                             <Form.Input fluid name="email" icon="mail" iconPosition="left" placeholder="Email Address" onChange={this.handleChange} type="email" value={email} className={this.handleInputError(errors, "email")}/>
                             <Form.Input fluid name="password" icon="lock" iconPosition="left" placeholder="Password" onChange={this.handleChange} type="password" value={password} className={this.handleInputError(errors, "password")}/>
 
-                            <Button className={loading ? "loading" : ""} disabled={loading} color="violet" fluid size="large">Submit</Button>
+                            <Button className={loading ? "loading" : ""} disabled={loading} color="blue" fluid size="large">Submit</Button>
                         </Segment>
                     </Form>
                     {
