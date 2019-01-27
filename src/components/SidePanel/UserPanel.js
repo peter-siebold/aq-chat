@@ -1,12 +1,17 @@
 import React from "react";
-import {Grid, Header, Icon, Dropdown} from "semantic-ui-react";
 import {darkPurple} from "../../Shared/Styles";
-import firebase from "../../firebase"
+import firebase from "../../firebase";
+
+import {Grid, Header, Icon, Dropdown, Image} from "semantic-ui-react";
 class UserPanel extends React.Component{
+    state = {
+        user: this.props.currentUser
+    }
+
     dropDownOptions = () => [
         {
             key: 'user',
-            text: <span>Signed in as <strong>User</strong></span>,
+            text: <span>Signed in as <strong>{this.state.user.displayName}</strong></span>,
             disabled: true
         },
         {
@@ -28,6 +33,7 @@ class UserPanel extends React.Component{
             })
     }
     render() {
+        const {user} = this.state;
         return (
             <Grid style={{background: `${darkPurple}`}}>
                 <Grid.Column>
@@ -37,18 +43,23 @@ class UserPanel extends React.Component{
                         <Icon name="code" />
                         <Header.Content>aq Chat</Header.Content>
                         </Header>
-                        </Grid.Row>
                         {/* User Dropdown */} 
                         <Header style={{padding: '0.25em'}} as="h4" inverted>
-                            <Dropdown trigger={
-                                <span>User</span>
-                            } options={this.dropDownOptions()}/>
+                            <Dropdown 
+                                trigger={
+                                    <span>
+                                        <Image src={user.photoURL} spaced="right" avatar />
+                                        {user.displayName}
+                                    </span>
+                                } 
+                                options={this.dropDownOptions()}
+                            />
                         </Header>
+                        </Grid.Row>
                 </Grid.Column>
             </Grid>
         )
     }
 }
-
 
 export default UserPanel;
