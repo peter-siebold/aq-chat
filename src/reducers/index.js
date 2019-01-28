@@ -39,7 +39,7 @@ const channel_reducer = (state = initalChannelState, action) => {
 
 const rootReducer = combineReducers({
     user: user_reducer,
-    state: channel_reducer,
+    channel: channel_reducer,
 })
 
 export default rootReducer;
