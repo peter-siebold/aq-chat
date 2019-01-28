@@ -15,6 +15,9 @@ class Messages extends React.Component{
         user: this.props.currentUser,
     }
 
+    removeListeners = () => {
+        this.state.messagesRef.off();
+    }
     addListeners = channelId => {
         this.addMessageListener(channelId)
     }
@@ -34,6 +37,9 @@ class Messages extends React.Component{
         if(channel && user){
             this.addListeners(channel.id);
         }
+    }
+    componentWillUnmount(){
+        this.removeListeners();
     }
     displayMessages = messages => (
         messages.length > 0 && messages.map(message => (
