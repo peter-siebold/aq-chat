@@ -1,7 +1,9 @@
 import React from "react";
+import uuidv4 from "uuid/v4";
 import firebase from "../../firebase";
 import { Segment, Button, Input } from "semantic-ui-react";
 import FileModal from "./FileModal";
+import ProgressBar from "./ProgressBar";
 
 class MessageForm extends React.Component{
     state = {
@@ -10,6 +12,10 @@ class MessageForm extends React.Component{
         loading: false,
         message: "",
         modal: false,
+        percentUploaded: 0,
+        storageRef: firebase.storage().ref(),
+        uploadState: "",
+        uploadTask: null,
         user: this.props.currentUser,
     }
     
@@ -21,7 +27,7 @@ class MessageForm extends React.Component{
             [event.target.name] : event.target.value
         })
     }
-    createMessage = () => {
+    createMessage = (fileUrl = null) => {
         const message = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             user: {
@@ -29,8 +35,13 @@ class MessageForm extends React.Component{
                 id: this.state.user.uid,
                 name: this.state.user.displayName,
             },
-            content: this.state.message
+            // content: this.state.message
         };
+        if(fileUrl !== null){
+            message["image"] = fileUrl;
+        } else {
+            message["content"] = this.state.message
+        }
         return message;
     }
     sendMessage = () => {
@@ -62,13 +73,80 @@ class MessageForm extends React.Component{
             })
         }
     }
+    getFileExt = (file, metadata) => {
+        let fileExt = "";
+        if(metadata.contentType){
+            if(metadata.contentType.match(/(?!.*\/)(.*$)/)){
+                fileExt = metadata.contentType.match(/(?!.*\/)(.*$)/)[0]
+            }
+        }
+        if(!fileExt && file && file.name){
+            if(file.name.match(/(?!.*\.)(.*$)/) ){
+                fileExt = file.name.match(/(?!.*\.)(.*$)/)[0];
+            }
+        }
+        if(!fileExt) {
+            fileExt = "";
+        }
+        return fileExt;
+    }
 
     uploadFile = (file, metadata) => {
-        console.log(file, metadata);
+        const pathToUpload = this.state.channel.id;
+        const ref = this.props.messagesRef;
+        const fileExt = this.getFileExt(file, metadata);
+        const filePath = `chat/public/${uuidv4()}.${fileExt}`
+        this.setState({
+            uploadState: "uploading",
+            uploadTask: this.state.storageRef.child(filePath).put(file, metadata)
+        }, () => {
+            this.state.uploadTask.on("state_changed", snap => {
+                const percentUploaded = Math.round( (snap.bytesTransferred / snap.totalBytes) * 100 );
+                this.props.isProgressBarVisible(percentUploaded);
+                this.setState({percentUploaded})
+            }, err => {
+                console.error(err);
+                this.setState({
+                    errors: this.state.errors.concat(err),
+                    uploadState: "error",
+                    uploadTask: null,
+                })
+            }, 
+            () => {
+                 this.state.uploadTask.snapshot.ref.getDownloadURL().then(downloadUrl => {
+                     this.sendFileMessage(downloadUrl, ref, pathToUpload);
+                 })
+                .catch(err => {
+                    console.error(err);
+                    this.setState({
+                        errors: this.state.errors.concat(err),
+                        uploadState: "error",
+                        uploadTask: null,
+                    })
+                });
+            })
+        })
+    }
+
+    sendFileMessage = (fileUrl, ref, pathToUpload) => {
+        ref.child(pathToUpload)
+            .push()
+            .set(this.createMessage(fileUrl))
+            .then(() => {
+                this.setState({ uploadState: "done"})
+            })
+            .catch(err => {
+                console.error(err);
+                this.setState({
+                    errors: this.state.errors.concat(err),
+                    uploadState: "error",
+                    uploadTask: null,
+                })
+            })
     }
 
     render() {
-        const {errors, message, loading, modal} = this.state
+        const {errors, message, loading, modal, uploadState, percentUploaded} = this.state
         return (
             <Segment className="message__form">
                 <Input 
@@ -93,17 +171,22 @@ class MessageForm extends React.Component{
                     />
                     <Button 
                         color="teal"
+                        disabled={uploadState === "uploading"} 
                         onClick={this.openModal}
                         content="Upload Media"
                         labelPosition="right"
                         icon="cloud upload"
                     />
-                    <FileModal
-                        modal={modal}
-                        closeModal={this.closeModal}
-                        uploadFile={this.uploadFile}
-                    />
                 </Button.Group>
+                <FileModal
+                    modal={modal}
+                    closeModal={this.closeModal}
+                    uploadFile={this.uploadFile}
+                />
+                <ProgressBar 
+                    uploadState={uploadState}
+                    percentUploaded={percentUploaded}
+                />
             </Segment>
         )
     }

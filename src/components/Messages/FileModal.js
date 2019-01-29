@@ -5,7 +5,7 @@ import mime from "mime-types";
 export class FileModal extends React.Component {
     state = {
         file: null,
-        authorized: ["image/jpeg", "image/png"],
+        authorized: ["image/jpeg", "image/png", "application/pdf"],
     }
     addFile = event => {
         const file = event.target.files[0];
