@@ -124,7 +124,7 @@ class Channels extends React.Component{
             }
         })
         if(count > 0){
-            return count
+            return count;
         }
     }
     removeListeners = () => {
@@ -167,6 +167,7 @@ class Channels extends React.Component{
 
     changeChannel = channel => {
         this.setActiveChannel(channel);
+        this.clearNotifications();
         this.props.setCurrentChannel(channel);
         this.props.setPrivateChannel(false);
         this.setState({ channel });
