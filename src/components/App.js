@@ -8,6 +8,7 @@ import Messages from "./Messages/Messages";
 import MetaPanel from "./MetaPanel/MetaPanel";
 
 export const App = ({currentUser, currentChannel}) => {
+  console.log(currentUser, currentChannel)
     return (
       <Grid columns="equal" className="app" style={{background: '#eee'}}>
         <ColorPanel />
