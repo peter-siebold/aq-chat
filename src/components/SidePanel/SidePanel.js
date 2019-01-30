@@ -4,6 +4,7 @@ import {darkPurple, fontBigger} from "../../Shared/Styles"
 import UserPanel from "./UserPanel";
 import Channels from "./Channels"
 import DirectMessages from "./DirectMessages";
+import Starred from "./Starred";
 class SidePanel extends React.Component{
     render() {
         const {currentUser} = this.props;
@@ -16,6 +17,7 @@ class SidePanel extends React.Component{
                 style={{background : `${darkPurple}`, fontSize: `${fontBigger}`}}
             >
                 <UserPanel currentUser={currentUser} />
+                <Starred />
                 <Channels currentUser={currentUser} />
                 <DirectMessages currentUser={currentUser} />
             </Menu>
