@@ -1,5 +1,4 @@
 import React from "react";
-import {darkPurple} from "../../Shared/Styles";
 import firebase from "../../firebase";
 
 import {Grid, Header, Icon, Dropdown, Image} from "semantic-ui-react";
@@ -33,8 +32,9 @@ class UserPanel extends React.Component{
     }
     render() {
         const {user} = this.state;
+        const {primaryColor} = this.props;
         return (
-            <Grid style={{background: `${darkPurple}`}}>
+            <Grid style={{background: `${primaryColor}`}}>
                 <Grid.Column>
                     <Grid.Row styles={{padding: '1.2em', margin: 0}}>
                         {/* App Header */}

@@ -1,22 +1,22 @@
 import React from "react";
 import {Menu} from "semantic-ui-react";
-import {darkPurple, fontBigger} from "../../Shared/Styles"
+import {fontBigger} from "../../Shared/Styles"
 import UserPanel from "./UserPanel";
 import Channels from "./Channels"
 import DirectMessages from "./DirectMessages";
 import Starred from "./Starred";
 class SidePanel extends React.Component{
     render() {
-        const {currentUser} = this.props;
+        const {currentUser, primaryColor} = this.props;
         return (
             <Menu 
                 size="large"
                 inverted
                 fixed="left"
                 vertical
-                style={{background : `${darkPurple}`, fontSize: `${fontBigger}`}}
+                style={{background : `${primaryColor}`, fontSize: `${fontBigger}`}}
             >
-                <UserPanel currentUser={currentUser} />
+                <UserPanel primaryColor={primaryColor} currentUser={currentUser} />
                 <Starred currentUser={currentUser}  />
                 <Channels currentUser={currentUser} />
                 <DirectMessages currentUser={currentUser} />

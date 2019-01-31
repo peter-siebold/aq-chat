@@ -1,7 +1,9 @@
 import React from "react";
 import { Sidebar, Menu, Divider, Button, Modal, Icon, Label, Segment } from "semantic-ui-react";
-import {  HuePicker } from "react-color";
+import {  CompactPicker } from "react-color";
 import firebase from "../../firebase";
+import {connect} from "react-redux"
+import {setColors} from "../../actions";
 
 class ColorPanel extends React.Component{
     state = {
@@ -10,7 +12,28 @@ class ColorPanel extends React.Component{
         secondary: '',
         user: this.props.currentUser,
         usersRef: firebase.database().ref("users"),
+        userColors: [],
     }
+
+    componentDidMount() {
+        if(this.state.user){
+            this.addListener(this.state.user.uid);
+        }
+    }
+
+    addListener = userId => {
+        let userColors = [];
+        this.state.usersRef
+            .child(`${userId}/colors`)
+            .on("child_added", snap => {
+                userColors.unshift(snap.val());
+                this.setState({
+                    userColors
+                })
+            })
+
+    }
+
     openModal = () => this.setState({ modal : true})
     closeModal = () => this.setState({ modal : false})
     handleChangePrimary = color => this.setState({
@@ -42,8 +65,26 @@ class ColorPanel extends React.Component{
             })
     }
 
+    displayUserColors = colors => (
+        colors.length > 0 && colors.map((color, i) => (
+            <React.Fragment key={i}>
+                <Divider />
+                <div 
+                    className="color__container" 
+                    onClick={() => this.props.setColors(color.primary, color.secondary)}
+                >
+                    <div className="color__square" style={{background:  color.primary}}>
+                        <div className="color__overlay" style={{background:  color.secondary}}>
+
+                        </div>
+                    </div>
+                </div>
+            </React.Fragment>
+        ))
+    )
+
     render() {
-        const { modal, primary, secondary} = this.state;
+        const { modal, primary, secondary, userColors} = this.state;
         return (
            <Sidebar
             as={Menu}
@@ -55,6 +96,7 @@ class ColorPanel extends React.Component{
            >
             <Divider />
             <Button icon="add" size="small" color="blue" onClick={this.openModal} />
+            {this.displayUserColors(userColors)}
             <Modal basic open={modal} onClose={this.closeModal}>
                 <Modal.Header>
                     Choose App Colors
@@ -62,14 +104,14 @@ class ColorPanel extends React.Component{
                 <Modal.Content>
                     <Segment>
                         <Label content="Primary Color" />
-                        <HuePicker
+                        <CompactPicker
                             color={primary}
                             onChange={this.handleChangePrimary}
                         />
                     </Segment>
                     <Segment>
                         <Label content="Secondary Color" />
-                        <HuePicker
+                        <CompactPicker
                             color={secondary}
                             onChange={this.handleChangeSecondary}
                         />
@@ -90,4 +132,4 @@ class ColorPanel extends React.Component{
 }
 
 
-export default ColorPanel;
+export default connect(null, {setColors})(ColorPanel);
