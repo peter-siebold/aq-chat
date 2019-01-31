@@ -47,8 +47,6 @@ class MessageForm extends React.Component{
     sendMessage = () => {
         const {getMessagesRef} = this.props;
         const {message, channel} = this.state;
-        const ref = getMessagesRef()
-        console.log(ref)
         if(message){
             this.setState({loading: true});
             getMessagesRef()
@@ -102,10 +100,8 @@ class MessageForm extends React.Component{
     uploadFile = (file, metadata) => {
         const pathToUpload = this.state.channel.id;
         const ref = this.props.getMessagesRef();
-        const fileExt = this.getFileExt(file, metadata);
-        
+        const fileExt = this.getFileExt(file, metadata);    
         const filePath = `${this.getPath()}/${uuidv4()}.${fileExt}`
-        console.log(this.getPath(), filePath)
 
         this.setState({
             uploadState: "uploading",

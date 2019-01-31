@@ -24,7 +24,6 @@ class UserPanel extends React.Component{
         },
     ];
     handleSignout = () => {
-        console.log("try to signout")
         firebase
             .auth()
             .signOut()
