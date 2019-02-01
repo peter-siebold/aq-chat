@@ -146,6 +146,17 @@ class Messages extends React.Component{
     componentWillUnmount(){
         this.removeListeners();
     }
+
+    componentDidUpdate(prevProps, prevState) {
+        if(this.messagesEnd){
+            this.scrollToBottom();
+        }
+    }
+
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior : "smooth"});
+    }
+
     displayMessages = messages => (
         messages.length > 0 && messages.map(message => (
             <Message 
@@ -246,9 +257,7 @@ class Messages extends React.Component{
                             : this.displayMessages(messages)
                         }
                         { this.displayTypingUsers(typingUsers)}
-                        {/* <div style={{ display: "flex", alignItems: "center"  }}>
-                            <span className="user__typing">Zaphod is typing</span> <Typing />
-                        </div> */}
+                        <div ref={node => (this.messagesEnd = node)}></div>
                     </Comment.Group>
                 </Segment>
                 
