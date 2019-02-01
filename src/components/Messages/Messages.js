@@ -6,6 +6,7 @@ import MessagesHeader from "./MessagesHeader";
 import MessageForm from "./MessageForm";
 import Message from "./Message";
 import Typing from "./Typing";
+import Skeleton from "./Skeleton";
 
 import {connect} from "react-redux";
 import {setUserPosts} from "../../actions";
@@ -16,7 +17,7 @@ class Messages extends React.Component{
         connectedRef: firebase.database().ref(".info/connected"),
         isChannelStarred: false,
         messages: [],
-        messagesLoading: false,
+        messagesLoading: true,
         messagesRef: firebase.database().ref("messages"),
         numUniqueUsers: "",
         privateChannel: this.props.isPrivateChannel,
@@ -81,7 +82,7 @@ class Messages extends React.Component{
             loadedMessages.push(snap.val())
             this.setState({
                 messages: loadedMessages,
-                messagesLoading: true,
+                messagesLoading: false,
             });
             this.countUniqueUsers(loadedMessages);
             this.countUsersPosts(loadedMessages);
@@ -237,8 +238,20 @@ class Messages extends React.Component{
         ))
     )
 
+    displayMessageSkeleton = loading => (
+        loading ? (
+            <React.Fragment>
+                { 
+                    [...Array(10)].map((_, i) =>(
+                        <Skeleton key={i} />
+                    ))
+                }
+            </React.Fragment>
+        ) : null
+    )
+
     render() {
-        const {messagesRef, messages, channel, user, progressBar, numUniqueUsers, searchTerm, searchResults, searchLoading, privateChannel, isChannelStarred, typingUsers} = this.state;
+        const {messagesRef, messages, channel, user, progressBar, numUniqueUsers, searchTerm, searchResults, searchLoading, privateChannel, isChannelStarred, typingUsers, messagesLoading} = this.state;
         return (
             <React.Fragment>
                 <MessagesHeader 
@@ -252,6 +265,7 @@ class Messages extends React.Component{
                 />
                 <Segment>
                     <Comment.Group className={progressBar ? "messages__progress": "messages"}>
+                        { this.displayMessageSkeleton(messagesLoading) }
                         { searchTerm 
                             ? this.displayMessages(searchResults) 
                             : this.displayMessages(messages)
