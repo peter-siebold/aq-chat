@@ -4,7 +4,7 @@ import firebase from "../../firebase";
 import { Segment, Button, Input } from "semantic-ui-react";
 import FileModal from "./FileModal";
 import ProgressBar from "./ProgressBar";
-
+import {getFileExt} from "../../Shared/helpers"
 class MessageForm extends React.Component{
     state = {
         channel: this.props.currentChannel,
@@ -72,23 +72,23 @@ class MessageForm extends React.Component{
             })
         }
     }
-    getFileExt = (file, metadata) => {
-        let fileExt = "";
-        if(metadata.contentType){
-            if(metadata.contentType.match(/(?!.*\/)(.*$)/)){
-                fileExt = metadata.contentType.match(/(?!.*\/)(.*$)/)[0]
-            }
-        }
-        if(!fileExt && file && file.name){
-            if(file.name.match(/(?!.*\.)(.*$)/) ){
-                fileExt = file.name.match(/(?!.*\.)(.*$)/)[0];
-            }
-        }
-        if(!fileExt) {
-            fileExt = "";
-        }
-        return fileExt;
-    }
+    // getFileExt = (file, metadata) => {
+    //     let fileExt = "";
+    //     if(metadata.contentType){
+    //         if(metadata.contentType.match(/(?!.*\/)(.*$)/)){
+    //             fileExt = metadata.contentType.match(/(?!.*\/)(.*$)/)[0]
+    //         }
+    //     }
+    //     if(!fileExt && file && file.name){
+    //         if(file.name.match(/(?!.*\.)(.*$)/) ){
+    //             fileExt = file.name.match(/(?!.*\.)(.*$)/)[0];
+    //         }
+    //     }
+    //     if(!fileExt) {
+    //         fileExt = "";
+    //     }
+    //     return fileExt;
+    // }
     getPath = () => {
         if(this.props.isPrivateChannel){
             return `chat/private-${this.state.channel.id}`
@@ -100,7 +100,7 @@ class MessageForm extends React.Component{
     uploadFile = (file, metadata) => {
         const pathToUpload = this.state.channel.id;
         const ref = this.props.getMessagesRef();
-        const fileExt = this.getFileExt(file, metadata);    
+        const fileExt = getFileExt(file, metadata);    
         const filePath = `${this.getPath()}/${uuidv4()}.${fileExt}`
 
         this.setState({
