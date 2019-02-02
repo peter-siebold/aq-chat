@@ -21,9 +21,7 @@ export class DirectMessages extends React.Component{
         }
     }
     componentWillUnmount(){
-        if(this.state.user) {
-            this.removeListeners();
-        }
+        this.removeListeners();
     }
 
     addListeners = currentUserUid => {
@@ -78,9 +76,9 @@ export class DirectMessages extends React.Component{
     }
 
     removeListeners = () => {
-        // TODO: remove listeners on component unmount
+        this.state.usersRef.off();
         this.state.presenceRef.off();
-        this.state.presenceRef.off();
+        this.state.connectedRef.off();
     }
 
     isUserOnline =(user) => user.status === "online";
