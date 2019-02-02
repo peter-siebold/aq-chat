@@ -16,6 +16,7 @@ class Messages extends React.Component{
         channel: this.props.currentChannel,
         connectedRef: firebase.database().ref(".info/connected"),
         isChannelStarred: false,
+        listeners: [],
         messages: [],
         messagesLoading: true,
         messagesRef: firebase.database().ref("messages"),
@@ -32,8 +33,10 @@ class Messages extends React.Component{
         user: this.props.currentUser,
     }
 
-    removeListeners = () => {
-        this.state.messagesRef.off();
+    removeListeners = listeners => {
+        listeners.forEach(listener => {
+            listener.ref.child(listener.id).off(listener.event)
+        })
     }
     addListeners = channelId => {
         this.addMessageListener(channelId);
@@ -51,14 +54,17 @@ class Messages extends React.Component{
                     typingUsers
                 })
             }
-        })
+        });
+        this.addToListeners(channelId, this.state.typingRef, "child_added");
+
         this.state.typingRef.child(channelId).on("child_removed", snap => {
             const index = typingUsers.findIndex(user => user.id === snap.key);
             if(index !== -1){
                 typingUsers = typingUsers.filter(user => user.id !== snap.key);
                 this.setState({ typingUsers });
             }
-        })
+        });
+        this.addToListeners(channelId, this.state.typingRef, "child_removed");
 
         this.state.connectedRef.on("value", snap => {
             if(snap.val() === true){
@@ -86,7 +92,8 @@ class Messages extends React.Component{
             });
             this.countUniqueUsers(loadedMessages);
             this.countUsersPosts(loadedMessages);
-        })
+        });
+        this.addToListeners(channelId, ref, "child_added");
     }
     addUsersStarsListener = (channelId, userId) => {
         this.state.usersRef
@@ -137,20 +144,35 @@ class Messages extends React.Component{
     }
 
     componentDidMount(){
-        const {channel, user} = this.state;
+        const {channel, user, listeners} = this.state;
 
         if(channel && user){
+            this.removeListeners(listeners)
             this.addListeners(channel.id);
             this.addUsersStarsListener(channel.id, user.uid);
         }
     }
     componentWillUnmount(){
-        this.removeListeners();
+        this.removeListeners(this.state.listeners);
+        this.state.connectedRef.off();
     }
 
     componentDidUpdate(prevProps, prevState) {
         if(this.messagesEnd){
             this.scrollToBottom();
+        }
+    }
+
+    addToListeners = (id, ref, event) => {
+        const index = this.state.listeners.findIndex(listener => {
+            return (
+                listener.id === id && listener.ref === ref && listener.event === event
+            )
+        });
+
+        if(index === -1){
+            const newListener = { id, ref, event };
+            this.setState({ listeners : this.state.listeners.concat(newListener)})
         }
     }
 
