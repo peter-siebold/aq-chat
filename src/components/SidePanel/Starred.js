@@ -17,6 +17,11 @@ class Starred extends React.Component {
             this.addListeners(this.state.user.uid);
         }
     }
+
+    componentWillUnmount () {
+        this.removeListeners();
+    }
+
     addListeners = (userId) => {
         this.state.usersRef
             .child(userId)
@@ -40,6 +45,10 @@ class Starred extends React.Component {
                     starredChannels: filteredChannels
                 })
             })
+    }
+
+    removeListeners = () => {
+        this.state.usersRef.child(`${this.state.user.uid}/starred`).off();
     }
     displayChannels = starredChannels => (
         starredChannels.length && starredChannels.map(channel => (
