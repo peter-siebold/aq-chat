@@ -1,6 +1,6 @@
 import React from "react";
 import {Loader, Dimmer} from "semantic-ui-react";
-export const Spinner = props => {
+export const Spinner = (props: any) => {
     const message = props && props.message ? props.message : "Preparing Chat ...";
     return (
         <Dimmer active>

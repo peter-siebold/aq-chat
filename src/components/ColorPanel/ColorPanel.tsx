@@ -5,7 +5,11 @@ import firebase from "../../firebase";
 import {connect} from "react-redux"
 import {setColors} from "../../actions";
 
-class ColorPanel extends React.Component{
+export interface ColorPanelProps {
+    currentUser: any;
+    setColors: (primary: string, secondary: string) => void;
+}
+class ColorPanel extends React.Component<ColorPanelProps>{
     state = {
         modal: false,
         primary: '',
@@ -25,11 +29,11 @@ class ColorPanel extends React.Component{
         this.removeListener();
     }
 
-    addListener = userId => {
-        let userColors = [];
+    addListener = (userId: string) => {
+        let userColors: any = [];
         this.state.usersRef
             .child(`${userId}/colors`)
-            .on("child_added", snap => {
+            .on("child_added", (snap: any) => {
                 userColors.unshift(snap.val());
                 this.setState({
                     userColors
@@ -43,10 +47,10 @@ class ColorPanel extends React.Component{
     }
     openModal = () => this.setState({ modal : true})
     closeModal = () => this.setState({ modal : false})
-    handleChangePrimary = color => this.setState({
+    handleChangePrimary = (color: any) => this.setState({
         primary: color.hex
     })
-    handleChangeSecondary = color => this.setState({
+    handleChangeSecondary = (color: any) => this.setState({
         secondary: color.hex
     })
 
@@ -55,7 +59,7 @@ class ColorPanel extends React.Component{
             this.saveColors(this.state.primary, this.state.secondary)
         }
     }
-    saveColors = (primary, secondary) => {
+    saveColors = (primary: string, secondary: string) => {
         this.state.usersRef
             .child(`${this.state.user.uid}/colors`)
             .push()
@@ -72,7 +76,7 @@ class ColorPanel extends React.Component{
             })
     }
 
-    displayUserColors = colors => (
+    displayUserColors = (colors: any[]) => (
         colors.length > 0 && colors.map((color, i) => (
             <React.Fragment key={i}>
                 <Divider />

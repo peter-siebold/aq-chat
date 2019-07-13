@@ -6,7 +6,7 @@ import ColorPanel from "./ColorPanel/ColorPanel";
 import SidePanel from "./SidePanel/SidePanel";
 import Messages from "./Messages/Messages";
 import MetaPanel from "./MetaPanel/MetaPanel";
-
+// @ts-ignore
 export const App = ({currentUser, currentChannel, isPrivateChannel, userPosts, primaryColor, secondaryColor}) => {
     return (
       <Grid columns="equal" className="app" style={{background: secondaryColor}}>
@@ -40,7 +40,7 @@ export const App = ({currentUser, currentChannel, isPrivateChannel, userPosts, p
       </Grid>
     );
 }
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any) => ({
   currentUser: state.user.currentUser,
   currentChannel : state.channel.currentChannel,
   isPrivateChannel: state.channel.isPrivateChannel,

@@ -2,6 +2,8 @@ import React from "react";
 import {Grid, Form, Segment, Button, Header, Message, Icon} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import firebase from "../../firebase";
+
+// @ts-ignore
 import md5 from "md5";
 
 class Register extends React.Component {
@@ -14,12 +16,14 @@ class Register extends React.Component {
         loading: false,
         usersRef: firebase.database().ref("users")
     }
+    // @ts-ignore
     isFormEmpty = ({username, email, password, passwordConfirmation}) => {
         return !username.length || !email.length || ! password.length || !passwordConfirmation.length;
     }
 
-    validatePassword= (password) => password || true;
+    validatePassword= (password: string) => password || true;
 
+    // @ts-ignore
     isPasswordValid = ({password, passwordConfirmation}) => {
         const minPasswordLength = 6;
         if( password !== passwordConfirmation) {
@@ -31,6 +35,7 @@ class Register extends React.Component {
         }
     }
 
+    // @ts-ignore
     displayErrors = errors => errors.map((error, index) => (
         <p key={index}>
             {error.message} 
@@ -38,7 +43,7 @@ class Register extends React.Component {
     ));
 
     isFormValid = () => {
-        let errors = [];
+        let errors: any = [];
         let error;
         if(this.isFormEmpty(this.state)){
             error= { message: "Fill in all fields"}
@@ -58,7 +63,7 @@ class Register extends React.Component {
      *
      * @memberof Register
      */
-    handleChange = (event) => {
+    handleChange = (event: any) => {
         this.setState({
             [event.target.name] : event.target.value
         })
@@ -68,7 +73,7 @@ class Register extends React.Component {
      *
      * @memberof Register
      */
-    handleSubmit = (event) => {
+    handleSubmit = (event: any) => {
         event.preventDefault();
         if(this.isFormValid()){
             this.setState({
@@ -79,7 +84,7 @@ class Register extends React.Component {
             firebase
                 .auth()
                 .createUserWithEmailAndPassword(email, password)
-                .then(createdUser => {
+                .then((createdUser: any) => {
                     createdUser.user.updateProfile({
                         displayName : this.state.username,
                         photoURL : `http://gravatar.com/avatar/${ md5(createdUser.user.email)}?d=identicon`
@@ -90,7 +95,7 @@ class Register extends React.Component {
                         // this.setState({
                         //     loading: false
                         // })
-                    }).catch(err => {
+                    }).catch((err: any) => {
                         this.setState({
                             errors: this.state.errors.concat(err),
                             loading: false
@@ -109,7 +114,7 @@ class Register extends React.Component {
         }
     }
 
-    saveUser = createdUser => {
+    saveUser = (createdUser: any) => {
         // this.setState({
         //     userRef: createdUser
         // })
@@ -118,9 +123,9 @@ class Register extends React.Component {
             avatar: createdUser.user.photoURL
         });
     }
-
+    // @ts-ignore
     handleInputError = (errors, inputName) => {
-        return errors.some(error => error.message.toLowerCase().includes(inputName)) ? "error" : "";
+        return errors.some((error: any) => error.message.toLowerCase().includes(inputName)) ? "error" : "";
     }
 
     render() {

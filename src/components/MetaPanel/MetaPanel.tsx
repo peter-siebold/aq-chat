@@ -1,14 +1,19 @@
 import React from "react";
 import { Segment, Header, Accordion, Icon, Image, List } from "semantic-ui-react";
 
+export interface MetaPanelProps {
+    currentChannel: any;
+    isPrivateChannel: boolean;
+    userPosts: any;
+}
 
-class MetaPanel extends React.Component{
+class MetaPanel extends React.Component<MetaPanelProps>{
     state = {
         activeIndex: 0,
         channel: this.props.currentChannel,
         privateChannel: this.props.isPrivateChannel,
     }
-    setActiveIndex = (event, titleProps) => {
+    setActiveIndex = (event: any, titleProps: any) => {
         const { index } = titleProps;
         const { activeIndex } = this.state;
         const newIndex = activeIndex === index ? -1 : index;
@@ -17,12 +22,12 @@ class MetaPanel extends React.Component{
         })
     }
 
-    formatCount = num => (num > 1 || num === 0) ? `${num} posts`: `${num} post`
-    displayTopPosters = posts => {
+    formatCount = (num: number) => (num > 1 || num === 0) ? `${num} posts`: `${num} post`
+    displayTopPosters = (posts: any) => {
         return(
             Object.entries(posts)
-                .sort((a, b) => b[1].count - a[1].count)
-                .map(([key, val], i) => (
+                .sort((a: any, b: any) => b[1].count - a[1].count)
+                .map(([key, val]: any[], i) => (
                     <List.Item key={i}>
                         <Image avatar src={val.avatar} />
                         <List.Content>

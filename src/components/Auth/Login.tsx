@@ -12,7 +12,7 @@ class Login extends React.Component {
     }
 
 
-    displayErrors = errors => errors.map((error, index) => (
+    displayErrors = (errors: any) => errors.map((error: any, index: any) => (
         <p key={index}>
             {error.message} 
         </p>
@@ -24,7 +24,7 @@ class Login extends React.Component {
      *
      * @memberof Register
      */
-    handleChange = (event) => {
+    handleChange = (event: any) => {
         this.setState({
             [event.target.name] : event.target.value
         })
@@ -34,7 +34,7 @@ class Login extends React.Component {
      *
      * @memberof Register
      */
-    handleSubmit = (event) => {
+    handleSubmit = (event: any) => {
         event.preventDefault();
         if(this.isFormValid(this.state)){
             this.setState({
@@ -55,12 +55,12 @@ class Login extends React.Component {
                 })
         }
     }
-
+    // @ts-ignore
     isFormValid = ({email, password}) => !!email && !!password;
 
 
-    handleInputError = (errors, inputName) => {
-        return errors.some(error => error.message.toLowerCase().includes(inputName)) ? "error" : "";
+    handleInputError = (errors: any, inputName: any) => {
+        return errors.some((error: any) => error.message.toLowerCase().includes(inputName)) ? "error" : "";
     }
 
     render() {
