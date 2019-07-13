@@ -5,11 +5,35 @@ import { Segment, Button, Input } from "semantic-ui-react";
 import FileModal from "./FileModal";
 import ProgressBar from "./ProgressBar";
 import {getFileExt} from "../../Shared/helpers"
-import {Picker, emojiIndex} from "emoji-mart";
+import {Picker, emojiIndex, BaseEmoji} from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css"
 
-class MessageForm extends React.Component{
-    state = {
+export interface MessageFormProps {
+    currentUser: any;
+    currentChannel: any;
+    setCurrentChannel?: (channel: any) => void;
+    setPrivateChannel?: (channel: any) => void;
+    getMessagesRef: () => firebase.database.Reference;
+    isPrivateChannel: boolean;
+    isProgressBarVisible: (percent: number) => void;
+    messagesRef ?: firebase.database.Reference
+}
+interface MessageFormState {
+    channel: any;
+    emojiPicker: boolean;
+    errors: any[];
+    loading: boolean;
+    message: string;
+    modal: boolean;
+    percentUploaded: number;
+    storageRef: firebase.storage.Reference;
+    typingRef: firebase.database.Reference;
+    uploadState: string;
+    uploadTask:  firebase.storage.UploadTask | null;
+    user: any;
+}
+class MessageForm extends React.Component<MessageFormProps>{
+    state: MessageFormState = {
         channel: this.props.currentChannel,
         emojiPicker: false,
         errors: [],
@@ -23,7 +47,7 @@ class MessageForm extends React.Component{
         uploadTask: null,
         user: this.props.currentUser,
     }
-    
+    messageInputRef?: Input | null;
     componentWillUnmount() {
         if(this.state.uploadTask !== null) {
             this.state.uploadTask.cancel();
@@ -36,13 +60,13 @@ class MessageForm extends React.Component{
     openModal = () => this.setState({ modal: true})
     closeModal = () => this.setState({ modal : false})
 
-    handleChange = event => {
+    handleChange = (event: any) => {
         this.setState({
             [event.target.name] : event.target.value
         })
     }
 
-    handleKeyDown = event => {
+    handleKeyDown = (event: any) => {
 
         if(event.keyCode === 13){
             this.sendMessage()
@@ -66,23 +90,23 @@ class MessageForm extends React.Component{
         this.setState({ emojiPicker : !this.state.emojiPicker})
     }
 
-    handleAddEmoji = emoji => {
+    handleAddEmoji = (emoji: any) => {
         const oldMessage = this.state.message;
         const newMessage = this.colonToUnicode(` ${oldMessage} ${emoji.colons}` );
         this.setState({
             message : newMessage,
             emojiPicker: false,
         })
-        setTimeout(() => this.messageInputRef.focus(), 0);
+        setTimeout(() => (this.messageInputRef as Input).focus(), 0);
     }
 
 
-    colonToUnicode = message => {
-        return message.replace(/:[A-Za-z0-9_+-]+:/g, x => {
+    colonToUnicode = (message: any) => {
+        return message.replace(/:[A-Za-z0-9_+-]+:/g, (x: string) => {
           x = x.replace(/:/g, "");
           let emoji = emojiIndex.emojis[x];
           if (typeof emoji !== "undefined") {
-            let unicode = emoji.native;
+            let unicode = (emoji as BaseEmoji).native;
             if (typeof unicode !== "undefined") {
               return unicode;
             }
@@ -93,7 +117,7 @@ class MessageForm extends React.Component{
       };
 
     createMessage = (fileUrl = null) => {
-        const message = {
+        const message: any = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             user: {
                 avatar: this.state.user.photoURL,
@@ -149,7 +173,7 @@ class MessageForm extends React.Component{
         }
     }
 
-    uploadFile = (file, metadata) => {
+    uploadFile = (file: any, metadata: any) => {
         const pathToUpload = this.state.channel.id;
         const ref = this.props.getMessagesRef();
         const fileExt = getFileExt(file, metadata);    
@@ -159,35 +183,40 @@ class MessageForm extends React.Component{
             uploadState: "uploading",
             uploadTask: this.state.storageRef.child(filePath).put(file, metadata)
         }, () => {
-            this.state.uploadTask.on("state_changed", snap => {
-                const percentUploaded = Math.round( (snap.bytesTransferred / snap.totalBytes) * 100 );
-                this.props.isProgressBarVisible(percentUploaded);
-                this.setState({percentUploaded})
-            }, err => {
-                console.error(err);
-                this.setState({
-                    errors: this.state.errors.concat(err),
-                    uploadState: "error",
-                    uploadTask: null,
-                })
-            }, 
-            () => {
-                 this.state.uploadTask.snapshot.ref.getDownloadURL().then(downloadUrl => {
-                     this.sendFileMessage(downloadUrl, ref, pathToUpload);
-                 })
-                .catch(err => {
+            if(this.state.uploadTask){
+                this.state.uploadTask.on("state_changed", (snap:any) => {
+                    const percentUploaded = Math.round( (snap.bytesTransferred / snap.totalBytes) * 100 );
+                    this.props.isProgressBarVisible(percentUploaded);
+                    this.setState({percentUploaded})
+                }, err => {
                     console.error(err);
                     this.setState({
                         errors: this.state.errors.concat(err),
                         uploadState: "error",
                         uploadTask: null,
                     })
-                });
-            })
+                }, 
+                () => {
+                    if(this.state.uploadTask){
+                        this.state.uploadTask.snapshot.ref.getDownloadURL().then(downloadUrl => {
+                            this.sendFileMessage(downloadUrl, ref, pathToUpload);
+                        })
+                       .catch(err => {
+                           console.error(err);
+                           this.setState({
+                               errors: this.state.errors.concat(err),
+                               uploadState: "error",
+                               uploadTask: null,
+                           })
+                       });
+                    }
+                })
+
+            }
         })
     }
 
-    sendFileMessage = (fileUrl, ref, pathToUpload) => {
+    sendFileMessage = (fileUrl: any, ref: firebase.database.Reference, pathToUpload: any) => {
         ref.child(pathToUpload)
             .push()
             .set(this.createMessage(fileUrl))
@@ -212,7 +241,7 @@ class MessageForm extends React.Component{
                     emojiPicker&& (
                         <Picker 
                             set="apple"
-                            className="emojipicker"
+                            style={{position: "absolute"}}
                             title="Pick your emoji"
                             emoji="point_up"
                             onSelect={this.handleAddEmoji}
@@ -261,10 +290,11 @@ class MessageForm extends React.Component{
                     closeModal={this.closeModal}
                     uploadFile={this.uploadFile}
                 />
-                <ProgressBar 
-                    uploadState={uploadState}
-                    percentUploaded={percentUploaded}
-                />
+                {
+                    uploadState === "uploading" ? (
+                        <ProgressBar percentUploaded={percentUploaded} />
+                    ): false
+                }
             </Segment>
         )
     }

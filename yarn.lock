@@ -939,6 +939,12 @@
     "@svgr/core" "^2.4.1"
     loader-utils "^1.1.0"
 
+"@types/emoji-mart@^2.8.4":
+  version "2.8.4"
+  resolved "https://registry.yarnpkg.com/@types/emoji-mart/-/emoji-mart-2.8.4.tgz#a7935eb3260edf9cbb9d9c4d1470f256bcddb45c"
+  dependencies:
+    "@types/react" "*"
+
 "@types/history@*":
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.2.tgz#0e670ea254d559241b6eeb3894f8754991e73220"
@@ -964,7 +970,7 @@
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@types/mime-types/-/mime-types-2.1.0.tgz#9ca52cda363f699c69466c2a6ccdaad913ea7a73"
 
-"@types/node@^12.6.2":
+"@types/node@*", "@types/node@^12.6.2":
   version "12.6.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.2.tgz#a5ccec6abb6060d5f20d256fb03ed743e9774999"
 
@@ -1028,6 +1034,12 @@
 "@types/tapable@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.2.tgz#e13182e1b69871a422d7863e11a4a6f5b814a4bd"
+
+"@types/uuid@^3.4.5":
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.5.tgz#d4dc10785b497a1474eae0ba7f0cb09c0ddfd6eb"
+  dependencies:
+    "@types/node" "*"
 
 "@webassemblyjs/ast@1.7.6":
   version "1.7.6"

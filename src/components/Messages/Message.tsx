@@ -2,15 +2,16 @@ import React from "react";
 import moment from "moment";
 import { Comment, Image } from "semantic-ui-react";
 
-const isOwnMessage = (message, user) => {
+const isOwnMessage = (message: any, user: any) => {
     return message.user.id === user.uid ? "message__self": ""
 }
 
-const isImage = (message) => {
+const isImage = (message: any) => {
     return message.hasOwnProperty("image") && !message.hasOwnProperty("content")
 }
 
-const timeFromNow = timestamp => moment(timestamp).fromNow();
+const timeFromNow = (timestamp: Date) => moment(timestamp).fromNow();
+// @ts-ignore
 export const Message = ({ message, user}) => {
     return (
         <Comment>

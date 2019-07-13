@@ -1,8 +1,9 @@
 import React from "react";
 import { Progress } from "semantic-ui-react";
-
-export const ProgressBar = ({uploadState, percentUploaded}) => (
-    uploadState === "uploading" && (
+export interface ProgressBarProps {
+    percentUploaded?: any
+}
+export const ProgressBar = ({percentUploaded}: ProgressBarProps) => (
         <Progress 
             className="progress__bar"
             percent={percentUploaded}
@@ -11,7 +12,6 @@ export const ProgressBar = ({uploadState, percentUploaded}) => (
             size="medium"
             inverted
         />
-    )
 )
 
 export default ProgressBar;

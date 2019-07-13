@@ -1,8 +1,16 @@
 import React from "react";
 import { Segment, Header, Input, Icon } from "semantic-ui-react";
 
-
-class MessagesHeader extends React.Component{
+export interface MessagesHeaderProps {
+    channelName: any;
+    numUniqueUsers:any; 
+    handleSearchChange:any;
+    searchLoading:any;
+    isPrivateChannel:any;
+    handleStar:any;
+    isChannelStarred:any;
+}
+class MessagesHeader extends React.Component<MessagesHeaderProps>{
     render() {
         const {channelName, numUniqueUsers, handleSearchChange, searchLoading, isPrivateChannel, handleStar, isChannelStarred} = this.props;
         return (
