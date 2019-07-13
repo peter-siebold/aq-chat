@@ -4,8 +4,23 @@ import { Menu, Icon } from "semantic-ui-react";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
 
-export class DirectMessages extends React.Component{
-    state = {
+export interface DirectMessagesProps {
+    currentUser: any;
+    setCurrentChannel: (channel: any) => void;
+    setPrivateChannel: (channel: any) => void;
+
+}
+interface DirectMessagesState {
+    activeChannel: string;
+    user: any;
+    users: any[];
+    usersRef: firebase.database.Reference;
+    connectedRef: firebase.database.Reference;
+    presenceRef: firebase.database.Reference;
+    errors: any[];
+}
+export class DirectMessages extends React.Component<DirectMessagesProps>{
+    state: DirectMessagesState = {
         activeChannel: "",
         user: this.props.currentUser,
         users: [],
@@ -24,20 +39,22 @@ export class DirectMessages extends React.Component{
         this.removeListeners();
     }
 
-    addListeners = currentUserUid => {
-        let loadedUsers = [];
+    addListeners = (currentUserUid: string) => {
+        let loadedUsers: any[] = [];
         this.state.usersRef.on("child_added", snap => {
-            if(currentUserUid !== snap.key){
-                let user = snap.val();
-                user["uid"] = snap.key;
-                user["status"] = "offline";
-                loadedUsers.push(user);
-                this.setState({users: loadedUsers})
+            if(snap){
+                if(currentUserUid !== snap.key){
+                    let user = snap.val();
+                    user["uid"] = snap.key;
+                    user["status"] = "offline";
+                    loadedUsers.push(user);
+                    this.setState({users: loadedUsers})
+                }
             }
         });
 
         this.state.connectedRef.on("value", snap => {
-            if(snap.val() === true){
+            if(snap && snap.val() === true){
                 const ref = this.state.presenceRef.child(currentUserUid);
                 ref.set(true);
                 ref.onDisconnect().remove(err => {
@@ -51,19 +68,19 @@ export class DirectMessages extends React.Component{
 
 
         this.state.presenceRef.on("child_added", snap => {
-            if(currentUserUid !== snap.key){
+            if(snap && currentUserUid !== snap.key){
                 this.addStatusToUser(snap.key);
             }
         });
 
         this.state.presenceRef.on("child_removed", snap => {
-            if(currentUserUid !== snap.key){
+            if(snap && currentUserUid !== snap.key){
                 this.addStatusToUser(snap.key, false);
             }
         });
     }
 
-    addStatusToUser = (userId, connected = true) => {
+    addStatusToUser = (userId: any, connected = true) => {
         const updatedUsers = this.state.users.reduce((acc, user) => {
             if(user.uid === userId){
                 user["status"] = `${connected ? "online": "offline"}`;
@@ -81,9 +98,9 @@ export class DirectMessages extends React.Component{
         this.state.connectedRef.off();
     }
 
-    isUserOnline =(user) => user.status === "online";
+    isUserOnline = (user: any) => user.status === "online";
 
-    changeChannel = user => {
+    changeChannel = (user: any) => {
         const channelId = this.getChannelId(user.uid);
         const channelData = {
             id: channelId,
@@ -93,12 +110,12 @@ export class DirectMessages extends React.Component{
         this.props.setPrivateChannel(true);
         this.setActiveChannel(user.uid);
     }
-    setActiveChannel = userId => {
+    setActiveChannel = (userId: string) => {
         this.setState({
             activeChannel: userId
         })
     }
-    getChannelId = userId => {
+    getChannelId = (userId: string) => {
         const currentUserId = this.state.user.uid;
         return userId < currentUserId ?
                 `${userId}/${currentUserId}` : 

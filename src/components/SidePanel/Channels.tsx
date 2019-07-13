@@ -3,8 +3,28 @@ import {Menu, Icon, Modal, Form, Input, Button, Label} from "semantic-ui-react";
 import firebase from "../../firebase";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
-class Channels extends React.Component{
-    state = {
+
+export interface ChannelsProps {
+    currentUser: any;
+    setCurrentChannel: (channel: any) => void;
+    setPrivateChannel: (channel: any) => void;
+}
+interface ChannelsState {
+    activeChannel: string;
+    channelDetails: string;
+    channel: any | null;
+    channelName: string;
+    channels: never[];
+    channelsRef: firebase.database.Reference;
+    messagesRef: firebase.database.Reference;
+    notifications: any[];
+    firstLoad: boolean;
+    modal: boolean;
+    typingRef: firebase.database.Reference;
+    user: any;
+}
+class Channels extends React.Component<ChannelsProps>{
+    state: ChannelsState = {
         activeChannel: "",
         channelDetails: "",
         channel: null,
@@ -28,13 +48,14 @@ class Channels extends React.Component{
             modal: true
         })
     }
-    handleChange = event => {
+    handleChange = (event: any) => {
         this.setState({
             [event.target.name]: event.target.value
         })
     }
+    // @ts-ignore
     isFormValid = ({channelName, channelDetails}) => channelName && channelDetails;
-    handleSubmit = event => {
+    handleSubmit = (event: any) => {
         event.preventDefault();
         if(this.isFormValid(this.state)){
             this.addChannel();
@@ -55,7 +76,7 @@ class Channels extends React.Component{
         }
 
         channelsRef
-            .child(key)
+            .child(key as any)
             .update(newChannel)
             .then(() => {
                 this.setState({
@@ -78,21 +99,21 @@ class Channels extends React.Component{
     }
 
     addListeners = () => {
-        let loadedChannels = [];
-        this.state.channelsRef.on("child_added", snap => {
+        let loadedChannels: any[] = [];
+        this.state.channelsRef.on("child_added", (snap: any) => {
             loadedChannels.push(snap.val());
             this.setState({ channels: loadedChannels}, () => this.setFirstChannel());
             this.addNotificationListeners(snap.key)
         })
     }
-    addNotificationListeners = channelId => {
+    addNotificationListeners = (channelId: string) => {
         this.state.messagesRef.child(channelId).on("value", snap => {
-            if(this.state.channel){
+            if(this.state.channel && snap){
                 this.handleNotifications(channelId, this.state.channel.id, this.state.notifications, snap);
             }
         })
     }
-    handleNotifications = (channelId, currentChannelId, notifications, snap) => {
+    handleNotifications = (channelId: string, currentChannelId: string, notifications: any[], snap: firebase.database.DataSnapshot) => {
         let lastTotal = 0;
         let index = notifications.findIndex(notification => notification.id === channelId);
 
@@ -117,7 +138,7 @@ class Channels extends React.Component{
             notifications
         })
     }
-    getNotificationCount = channel => {
+    getNotificationCount = (channel: any) => {
         let count = 0;
         this.state.notifications.forEach(notification => {
             if(notification.id === channel.id){
@@ -131,6 +152,7 @@ class Channels extends React.Component{
     removeListeners = () => {
         this.state.channelsRef.off();
         this.state.channels.forEach(channel => {
+            // @ts-ignore
             this.state.messagesRef(channel.id).off();
         })
     }
@@ -150,7 +172,7 @@ class Channels extends React.Component{
      *
      * @memberof Channels
      */
-    displayChannels = channels => (
+    displayChannels = (channels: any[]) => (
         channels.length && channels.map(channel => (
             <Menu.Item 
                 key={channel.id}
@@ -169,7 +191,7 @@ class Channels extends React.Component{
         ))
     )
 
-    changeChannel = channel => {
+    changeChannel = (channel: any) => {
         this.setActiveChannel(channel);
         this.clearNotifications();
         
@@ -182,7 +204,7 @@ class Channels extends React.Component{
         this.props.setPrivateChannel(false);
         this.setState({ channel });
     }
-    setActiveChannel = channel => {
+    setActiveChannel = (channel: any) => {
         this.setState({
             activeChannel: channel.id
         })

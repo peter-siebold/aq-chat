@@ -4,8 +4,19 @@ import firebase from "../../firebase";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
 
-class Starred extends React.Component {
-    state = {
+export interface StarredProps {
+    currentUser: any;
+    setCurrentChannel: (channel: any) => void;
+    setPrivateChannel: (channel: any) => void;
+}
+interface StarredState {
+    user: any;
+    usersRef: firebase.database.Reference;
+    activeChannel: string;
+    starredChannels: any[]
+}
+class Starred extends React.Component<StarredProps> {
+    state: StarredState = {
         user: this.props.currentUser,
         usersRef: firebase.database().ref("users"),
         activeChannel: "",
@@ -22,36 +33,40 @@ class Starred extends React.Component {
         this.removeListeners();
     }
 
-    addListeners = (userId) => {
+    addListeners = (userId: string) => {
         this.state.usersRef
             .child(userId)
             .child("starred")
             .on("child_added", snap => {
-                const starredChannel = { id: snap.key, ...snap.val()}
-                this.setState({
-                    starredChannels : [...this.state.starredChannels, starredChannel]
-                })
+                if(snap){
+                    const starredChannel = { id: snap.key, ...snap.val()}
+                    this.setState({
+                        starredChannels : [...this.state.starredChannels, starredChannel]
+                    })
+                }
             });
 
         this.state.usersRef
             .child(userId)
             .child("starred")
             .on("child_removed", snap => {
-                const channelToRemove = { id: snap.key, ...snap.val()};
-                const filteredChannels = this.state.starredChannels.filter(channel => {
-                    return channel.id !== channelToRemove.id;
-                })
-                this.setState({
-                    starredChannels: filteredChannels
-                })
+                if(snap){
+                    const channelToRemove = { id: snap.key, ...snap.val()};
+                    const filteredChannels = this.state.starredChannels.filter(channel => {
+                        return channel.id !== channelToRemove.id;
+                    })
+                    this.setState({
+                        starredChannels: filteredChannels
+                    })
+                }
             })
     }
 
     removeListeners = () => {
         this.state.usersRef.child(`${this.state.user.uid}/starred`).off();
     }
-    displayChannels = starredChannels => (
-        starredChannels.length && starredChannels.map(channel => (
+    displayChannels = (starredChannels: any) => (
+        starredChannels.length && starredChannels.map((channel: any) => (
             <Menu.Item 
                 key={channel.id}
                 onClick={() => this.changeChannel(channel)}
@@ -63,12 +78,12 @@ class Starred extends React.Component {
             </Menu.Item>
         ))
     )
-    setActiveChannel = channel => {
+    setActiveChannel = (channel: any) => {
         this.setState({
             activeChannel: channel.id
         })
     }
-    changeChannel = channel => {
+    changeChannel = (channel: any) => {
         this.setActiveChannel(channel);
         this.props.setCurrentChannel(channel);
         this.props.setPrivateChannel(false);

@@ -5,7 +5,12 @@ import UserPanel from "./UserPanel";
 import Channels from "./Channels"
 import DirectMessages from "./DirectMessages";
 import Starred from "./Starred";
-class SidePanel extends React.Component{
+
+export interface SidePanelProps {
+    currentUser: any;
+    primaryColor: any;
+}
+class SidePanel extends React.Component<SidePanelProps>{
     render() {
         const {currentUser, primaryColor} = this.props;
         return (

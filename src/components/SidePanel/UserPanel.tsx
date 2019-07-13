@@ -4,8 +4,27 @@ import AvatarEditor from "react-avatar-editor";
 import mime from "mime-types";
 
 import {Grid, Header, Icon, Dropdown, Image, Modal, Input, Button} from "semantic-ui-react";
-class UserPanel extends React.Component{
-    state = {
+
+export interface UserPanelProps {
+    currentUser: any;
+    primaryColor: any;
+}
+interface UserPanelState {
+    user: any;
+    modal: boolean;
+    previewImage: string;
+    croppedImage: string;
+    blob: string;
+    storageRef: firebase.storage.Reference;
+    userRef: firebase.User | null;
+    usersRef: firebase.database.Reference;
+    uploadedCroppedImage: any;
+    metadata: {
+        contentType: string;
+    }
+}
+class UserPanel extends React.Component<UserPanelProps>{
+    state: UserPanelState = {
         user: this.props.currentUser,
         modal: false,
         previewImage: "",
@@ -19,6 +38,7 @@ class UserPanel extends React.Component{
             contentType: "image/jpeg"
         }
     }
+    avatarEditor?: AvatarEditor | null
     openModal  = () => this.setState({modal : true, });
     closeModal = () => this.setState({modal : false, });
 
@@ -52,7 +72,7 @@ class UserPanel extends React.Component{
             blob: "",
         })
     }
-    setMetaData = file => {
+    setMetaData = (file: any) => {
         if(file && file.name){
             const contentType = mime.lookup(file.name);
             if(contentType){
@@ -65,7 +85,7 @@ class UserPanel extends React.Component{
             }
         }
     }
-    handleChange = event => {
+    handleChange = (event: any) => {
         const file = event.target.files[0];
         const reader = new FileReader();
         if(file) {
@@ -81,17 +101,18 @@ class UserPanel extends React.Component{
     }
     uploadCroppedImage = () => {
         const {storageRef, userRef, metadata, blob} = this.state;
-        console.log(this.state.metadata);
-        storageRef
-            .child(`avatars/users/${userRef.uid}`)
-            .put(blob, metadata)
-            .then(snap => {
-                snap.ref.getDownloadURL().then(downloadUrl => {
-                    this.setState({
-                        uploadedCroppedImage: downloadUrl
-                    }, () => this.changeAvatar())
+        if(userRef){
+            storageRef
+                .child(`avatars/users/${userRef.uid}`)
+                .put(blob, metadata)
+                .then(snap => {
+                    snap.ref.getDownloadURL().then(downloadUrl => {
+                        this.setState({
+                            uploadedCroppedImage: downloadUrl
+                        }, () => this.changeAvatar())
+                    })
                 })
-            })
+        }
     }
     handleCropImage = () => {
         if(this.avatarEditor){
@@ -106,26 +127,30 @@ class UserPanel extends React.Component{
     }
 
     changeAvatar = () => {
-        this.state.userRef
-            .updateProfile({
-                photoURL: this.state.uploadedCroppedImage
-            })
-            .then(() => {
-                console.log("Photo url updated");
-                this.closeModal();
-            })
-            .catch(err => {
-                console.error(err);
-            })
-            this.state.usersRef
-                .child(this.state.user.uid)
-                .update({ avatar : this.state.uploadedCroppedImage })
-                .then(() => {
-                    console.log("users avatar updated")
+        if(this.state.userRef){
+
+            this.state.userRef
+            // @ts-ignore
+                .updateProfile({
+                    photoURL: this.state.uploadedCroppedImage
                 })
-                .catch(err => {
+                .then(() => {
+                    console.log("Photo url updated");
+                    this.closeModal();
+                })
+                .catch((err: any) => {
                     console.error(err);
                 })
+                this.state.usersRef
+                    .child(this.state.user.uid)
+                    .update({ avatar : this.state.uploadedCroppedImage })
+                    .then(() => {
+                        console.log("users avatar updated")
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+        }
 
     }
     render() {
