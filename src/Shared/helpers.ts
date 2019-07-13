@@ -1,4 +1,4 @@
-export const getFileExt = (file, metadata) => {
+export const getFileExt = (file: any, metadata: any) => {
     let fileExt = "";
     if(metadata.contentType){
         if(metadata.contentType.match(/(?!.*\/)(.*$)/)){

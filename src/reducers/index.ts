@@ -6,7 +6,7 @@ const initialUserState = {
     isLoading: true,
 };
 
-const user_reducer = (state = initialUserState, action) => {
+const user_reducer = (state = initialUserState, action: any) => {
     switch(action.type){
         case actionTypes.SET_USER:
             return {
@@ -27,7 +27,7 @@ const user_reducer = (state = initialUserState, action) => {
         isPrivateChannel: false,
         userPosts: null,
     }
-    const channel_reducer = (state = initalChannelState, action) => {
+    const channel_reducer = (state = initalChannelState, action: any) => {
         switch(action.type){
             case actionTypes.SET_CURRENT_CHANNEL:
             return {
@@ -54,7 +54,7 @@ const initialColorsState = {
     secondaryColor: "#eee",
 }
 
-const color_reducer = (state = initialColorsState, action) => {
+const color_reducer = (state = initialColorsState, action: any) => {
     switch(action.type){
         case actionTypes.SET_COLORS:
         return {
