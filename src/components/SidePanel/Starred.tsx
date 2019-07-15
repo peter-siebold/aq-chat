@@ -1,8 +1,8 @@
 import React from "react";
 import { Menu, Icon} from "semantic-ui-react";
-import firebase from "../../firebase";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
+import { getUsersReference } from "../../Helpers/dbHelper";
 
 export interface StarredProps {
     currentUser: any;
@@ -11,14 +11,14 @@ export interface StarredProps {
 }
 interface StarredState {
     user: any;
-    usersRef: firebase.database.Reference;
+    usersRef:  any;
     activeChannel: string;
     starredChannels: any[]
 }
 class Starred extends React.Component<StarredProps> {
     state: StarredState = {
         user: this.props.currentUser,
-        usersRef: firebase.database().ref("users"),
+        usersRef: getUsersReference(),
         activeChannel: "",
         starredChannels: [],
     }
@@ -37,7 +37,7 @@ class Starred extends React.Component<StarredProps> {
         this.state.usersRef
             .child(userId)
             .child("starred")
-            .on("child_added", snap => {
+            .on("child_added", (snap: any) => {
                 if(snap){
                     const starredChannel = { id: snap.key, ...snap.val()}
                     this.setState({
@@ -49,7 +49,7 @@ class Starred extends React.Component<StarredProps> {
         this.state.usersRef
             .child(userId)
             .child("starred")
-            .on("child_removed", snap => {
+            .on("child_removed", (snap: any) => {
                 if(snap){
                     const channelToRemove = { id: snap.key, ...snap.val()};
                     const filteredChannels = this.state.starredChannels.filter(channel => {

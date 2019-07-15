@@ -1,10 +1,10 @@
 import React from "react";
 import {Grid, Form, Segment, Button, Header, Message, Icon} from "semantic-ui-react";
 import {Link} from "react-router-dom";
-import firebase from "../../firebase";
 
 // @ts-ignore
 import md5 from "md5";
+import { firebase, getUsersReference } from "../../Helpers/dbHelper";
 
 class Register extends React.Component {
     state = {
@@ -14,7 +14,7 @@ class Register extends React.Component {
         passwordConfirmation: "",
         errors: [],
         loading: false,
-        usersRef: firebase.database().ref("users")
+        usersRef: getUsersReference(),
     }
     // @ts-ignore
     isFormEmpty = ({username, email, password, passwordConfirmation}) => {

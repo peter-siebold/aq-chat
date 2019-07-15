@@ -1,6 +1,5 @@
 import React from "react";
 import { Segment, Comment } from "semantic-ui-react";
-import firebase from "../../firebase";
 
 import MessagesHeader from "./MessagesHeader";
 import MessageForm from "./MessageForm";
@@ -10,6 +9,7 @@ import Skeleton from "./Skeleton";
 
 import {connect} from "react-redux";
 import {setUserPosts} from "../../actions";
+import { getUsersReference, getTypingReference, getPrivateMessagesReference, getMessagesReference, getConnectedReference } from "../../Helpers/dbHelper";
 
 export interface MessagesProps {
     currentChannel: any;
@@ -20,12 +20,12 @@ export interface MessagesProps {
 
 interface MessagesState {
     channel: any;
-    connectedRef: firebase.database.Reference;
+    connectedRef: any;
     isChannelStarred: boolean;
     listeners: any[];
     messages: any[];
     messagesLoading: boolean;
-    messagesRef: firebase.database.Reference;
+    messagesRef: any;
     numUniqueUsers: any;
     privateChannel: any;
     privateMessagesRef: any;
@@ -41,22 +41,22 @@ interface MessagesState {
 class Messages extends React.Component<MessagesProps>{
     state: MessagesState = {
         channel: this.props.currentChannel,
-        connectedRef: firebase.database().ref(".info/connected"),
+        connectedRef: getConnectedReference(),
         isChannelStarred: false,
         listeners: [],
         messages: [],
         messagesLoading: true,
-        messagesRef: firebase.database().ref("messages"),
+        messagesRef: getMessagesReference(),
         numUniqueUsers: "",
         privateChannel: this.props.isPrivateChannel,
-        privateMessagesRef: firebase.database().ref("privateMessages"),
+        privateMessagesRef: getPrivateMessagesReference(),
         progressBar: false,
         searchLoading: false,
         searchResults: [],
         searchTerm: "",
-        typingRef: firebase.database().ref("typing"),
+        typingRef: getTypingReference(),
         typingUsers: [],
-        usersRef : firebase.database().ref("users"),
+        usersRef : getUsersReference(),
         user: this.props.currentUser,
     }
     messagesEnd ?: HTMLDivElement | null;
@@ -72,7 +72,7 @@ class Messages extends React.Component<MessagesProps>{
     }
     addTypingListeners = (channelId: string) => {
         let typingUsers: any[] = [];
-        this.state.typingRef.child(channelId).on("child_added", (snap: firebase.database.DataSnapshot) => {
+        this.state.typingRef.child(channelId).on("child_added", (snap: any) => {
             if(snap.key !== this.state.user.uid){
                 typingUsers = typingUsers.concat({
                     id: snap.key,
@@ -85,7 +85,7 @@ class Messages extends React.Component<MessagesProps>{
         });
         this.addToListeners(channelId, this.state.typingRef, "child_added");
 
-        this.state.typingRef.child(channelId).on("child_removed", (snap: firebase.database.DataSnapshot) => {
+        this.state.typingRef.child(channelId).on("child_removed", (snap: any) => {
             const index = typingUsers.findIndex(user => user.id === snap.key);
             if(index !== -1){
                 typingUsers = typingUsers.filter(user => user.id !== snap.key);
@@ -112,7 +112,7 @@ class Messages extends React.Component<MessagesProps>{
     addMessageListener = (channelId: string) => {
         const loadedMessages: any[] = [];
         const ref = this.getMessagesRef();
-        ref.child(channelId).on("child_added", (snap: firebase.database.DataSnapshot) => {
+        ref.child(channelId).on("child_added", (snap: any) => {
             loadedMessages.push(snap.val())
             this.setState({
                 messages: loadedMessages,

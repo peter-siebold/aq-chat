@@ -1,8 +1,8 @@
 import React from "react";
-import firebase from "../../firebase";
 import { Menu, Icon } from "semantic-ui-react";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
+import { getUsersReference, getConnectedReference, getPresenceReference } from "../../Helpers/dbHelper";
 
 export interface DirectMessagesProps {
     currentUser: any;
@@ -14,9 +14,9 @@ interface DirectMessagesState {
     activeChannel: string;
     user: any;
     users: any[];
-    usersRef: firebase.database.Reference;
-    connectedRef: firebase.database.Reference;
-    presenceRef: firebase.database.Reference;
+    usersRef: any;
+    connectedRef: any;
+    presenceRef: any;
     errors: any[];
 }
 export class DirectMessages extends React.Component<DirectMessagesProps>{
@@ -24,9 +24,9 @@ export class DirectMessages extends React.Component<DirectMessagesProps>{
         activeChannel: "",
         user: this.props.currentUser,
         users: [],
-        usersRef: firebase.database().ref("users"),
-        connectedRef: firebase.database().ref(".info/connected"),
-        presenceRef: firebase.database().ref("presence"),
+        usersRef: getUsersReference(),
+        connectedRef: getConnectedReference(),
+        presenceRef: getPresenceReference(),
         errors: [],
     }
 
@@ -41,7 +41,7 @@ export class DirectMessages extends React.Component<DirectMessagesProps>{
 
     addListeners = (currentUserUid: string) => {
         let loadedUsers: any[] = [];
-        this.state.usersRef.on("child_added", snap => {
+        this.state.usersRef.on("child_added", (snap: any) => {
             if(snap){
                 if(currentUserUid !== snap.key){
                     let user = snap.val();
@@ -53,11 +53,11 @@ export class DirectMessages extends React.Component<DirectMessagesProps>{
             }
         });
 
-        this.state.connectedRef.on("value", snap => {
+        this.state.connectedRef.on("value", (snap: any) => {
             if(snap && snap.val() === true){
                 const ref = this.state.presenceRef.child(currentUserUid);
                 ref.set(true);
-                ref.onDisconnect().remove(err => {
+                ref.onDisconnect().remove((err: any) => {
                     if(err !== null){
                         console.error(err);
                     }
@@ -67,13 +67,13 @@ export class DirectMessages extends React.Component<DirectMessagesProps>{
         });
 
 
-        this.state.presenceRef.on("child_added", snap => {
+        this.state.presenceRef.on("child_added", (snap: any) => {
             if(snap && currentUserUid !== snap.key){
                 this.addStatusToUser(snap.key);
             }
         });
 
-        this.state.presenceRef.on("child_removed", snap => {
+        this.state.presenceRef.on("child_removed", (snap: any) => {
             if(snap && currentUserUid !== snap.key){
                 this.addStatusToUser(snap.key, false);
             }

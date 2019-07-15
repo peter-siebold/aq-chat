@@ -4,7 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import App from './components/App';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
-import firebase from "./firebase";
+import {firebase} from "./Helpers/dbHelper";
 
 import * as serviceWorker from './serviceWorker';
 

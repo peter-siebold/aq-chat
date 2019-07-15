@@ -1,9 +1,9 @@
 import React from "react";
-import firebase from "../../firebase";
 import AvatarEditor from "react-avatar-editor";
 import mime from "mime-types";
 
 import {Grid, Header, Icon, Dropdown, Image, Modal, Input, Button} from "semantic-ui-react";
+import {firebase, getStorageReference, getUsersReference, getAuthCurrentUser } from "../../Helpers/dbHelper";
 
 export interface UserPanelProps {
     currentUser: any;
@@ -15,9 +15,9 @@ interface UserPanelState {
     previewImage: string;
     croppedImage: string;
     blob: string;
-    storageRef: firebase.storage.Reference;
-    userRef: firebase.User | null;
-    usersRef: firebase.database.Reference;
+    storageRef: any;
+    userRef: any | null;
+    usersRef: any;
     uploadedCroppedImage: any;
     metadata: {
         contentType: string;
@@ -30,9 +30,9 @@ class UserPanel extends React.Component<UserPanelProps>{
         previewImage: "",
         croppedImage: "",
         blob: "",
-        storageRef: firebase.storage().ref(),
-        userRef: firebase.auth().currentUser,
-        usersRef : firebase.database().ref("users"),
+        storageRef: getStorageReference(),
+        userRef: getAuthCurrentUser(),
+        usersRef : getUsersReference(),
         uploadedCroppedImage: "",
         metadata: {
             contentType: "image/jpeg"
@@ -105,8 +105,8 @@ class UserPanel extends React.Component<UserPanelProps>{
             storageRef
                 .child(`avatars/users/${userRef.uid}`)
                 .put(blob, metadata)
-                .then(snap => {
-                    snap.ref.getDownloadURL().then(downloadUrl => {
+                .then((snap: any) => {
+                    snap.ref.getDownloadURL().then((downloadUrl: any) => {
                         this.setState({
                             uploadedCroppedImage: downloadUrl
                         }, () => this.changeAvatar())
@@ -147,7 +147,7 @@ class UserPanel extends React.Component<UserPanelProps>{
                     .then(() => {
                         console.log("users avatar updated")
                     })
-                    .catch(err => {
+                    .catch((err: any) => {
                         console.error(err);
                     })
         }

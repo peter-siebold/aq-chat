@@ -1,9 +1,9 @@
 import React from "react";
 import { Sidebar, Menu, Divider, Button, Modal, Icon, Label, Segment } from "semantic-ui-react";
 import {  CompactPicker } from "react-color";
-import firebase from "../../firebase";
 import {connect} from "react-redux"
 import {setColors} from "../../actions";
+import { getUsersReference } from "../../Helpers/dbHelper";
 
 export interface ColorPanelProps {
     currentUser: any;
@@ -15,7 +15,7 @@ class ColorPanel extends React.Component<ColorPanelProps>{
         primary: '',
         secondary: '',
         user: this.props.currentUser,
-        usersRef: firebase.database().ref("users"),
+        usersRef: getUsersReference(),
         userColors: [],
     }
 

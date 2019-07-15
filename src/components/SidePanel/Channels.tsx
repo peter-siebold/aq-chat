@@ -1,8 +1,8 @@
 import React from "react";
 import {Menu, Icon, Modal, Form, Input, Button, Label} from "semantic-ui-react";
-import firebase from "../../firebase";
 import {connect} from "react-redux";
 import {setCurrentChannel, setPrivateChannel} from "../../actions";
+import { getChannelsReference, getPrivateMessagesReference, getTypingReference } from "../../Helpers/dbHelper";
 
 export interface ChannelsProps {
     currentUser: any;
@@ -15,12 +15,12 @@ interface ChannelsState {
     channel: any | null;
     channelName: string;
     channels: never[];
-    channelsRef: firebase.database.Reference;
-    messagesRef: firebase.database.Reference;
+    channelsRef: any;
+    messagesRef: any;
     notifications: any[];
     firstLoad: boolean;
     modal: boolean;
-    typingRef: firebase.database.Reference;
+    typingRef: any;
     user: any;
 }
 class Channels extends React.Component<ChannelsProps>{
@@ -30,12 +30,12 @@ class Channels extends React.Component<ChannelsProps>{
         channel: null,
         channelName: "",
         channels: [],
-        channelsRef : firebase.database().ref("channels"),
-        messagesRef : firebase.database().ref("messages"),
+        channelsRef : getChannelsReference(),
+        messagesRef : getPrivateMessagesReference(),
         notifications: [],
         firstLoad: true,
         modal: false,
-        typingRef: firebase.database().ref("typing"),
+        typingRef: getTypingReference(),
         user: this.props.currentUser,
     }
     closeModal = () => {
@@ -85,7 +85,7 @@ class Channels extends React.Component<ChannelsProps>{
                 });
                 this.closeModal();
             })
-            .catch(err => {
+            .catch((err: any) => {
                 console.error(err);
             })
     }
@@ -107,13 +107,13 @@ class Channels extends React.Component<ChannelsProps>{
         })
     }
     addNotificationListeners = (channelId: string) => {
-        this.state.messagesRef.child(channelId).on("value", snap => {
+        this.state.messagesRef.child(channelId).on("value", (snap: any) => {
             if(this.state.channel && snap){
                 this.handleNotifications(channelId, this.state.channel.id, this.state.notifications, snap);
             }
         })
     }
-    handleNotifications = (channelId: string, currentChannelId: string, notifications: any[], snap: firebase.database.DataSnapshot) => {
+    handleNotifications = (channelId: string, currentChannelId: string, notifications: any[], snap: any) => {
         let lastTotal = 0;
         let index = notifications.findIndex(notification => notification.id === channelId);
 

@@ -1,22 +1,22 @@
 import React from "react";
 import uuidv4 from "uuid/v4";
-import firebase from "../../firebase";
 import { Segment, Button, Input } from "semantic-ui-react";
 import FileModal from "./FileModal";
 import ProgressBar from "./ProgressBar";
 import {getFileExt} from "../../Shared/helpers"
 import {Picker, emojiIndex, BaseEmoji} from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css"
+import { getStorageReference, getTypingReference, getDbTimeStamp } from "../../Helpers/dbHelper";
 
 export interface MessageFormProps {
     currentUser: any;
     currentChannel: any;
     setCurrentChannel?: (channel: any) => void;
     setPrivateChannel?: (channel: any) => void;
-    getMessagesRef: () => firebase.database.Reference;
+    getMessagesRef: () => any;
     isPrivateChannel: boolean;
     isProgressBarVisible: (percent: number) => void;
-    messagesRef ?: firebase.database.Reference
+    messagesRef ?: any
 }
 interface MessageFormState {
     channel: any;
@@ -26,10 +26,10 @@ interface MessageFormState {
     message: string;
     modal: boolean;
     percentUploaded: number;
-    storageRef: firebase.storage.Reference;
-    typingRef: firebase.database.Reference;
+    storageRef: any;
+    typingRef: any;
     uploadState: string;
-    uploadTask:  firebase.storage.UploadTask | null;
+    uploadTask: any | null;
     user: any;
 }
 class MessageForm extends React.Component<MessageFormProps>{
@@ -41,8 +41,8 @@ class MessageForm extends React.Component<MessageFormProps>{
         message: "",
         modal: false,
         percentUploaded: 0,
-        storageRef: firebase.storage().ref(),
-        typingRef: firebase.database().ref("typing"),
+        storageRef: getStorageReference(),
+        typingRef: getTypingReference(),
         uploadState: "",
         uploadTask: null,
         user: this.props.currentUser,
@@ -118,7 +118,7 @@ class MessageForm extends React.Component<MessageFormProps>{
 
     createMessage = (fileUrl = null) => {
         const message: any = {
-            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            timestamp: getDbTimeStamp(),
             user: {
                 avatar: this.state.user.photoURL,
                 id: this.state.user.uid,
@@ -152,7 +152,7 @@ class MessageForm extends React.Component<MessageFormProps>{
                     .child(user.uid)
                     .remove()
                 })
-                .catch(err => {
+                .catch((err: any) => {
                     this.setState({
                         loading: false,
                         errors: this.state.errors.concat(err)
@@ -188,7 +188,7 @@ class MessageForm extends React.Component<MessageFormProps>{
                     const percentUploaded = Math.round( (snap.bytesTransferred / snap.totalBytes) * 100 );
                     this.props.isProgressBarVisible(percentUploaded);
                     this.setState({percentUploaded})
-                }, err => {
+                }, (err: any) => {
                     console.error(err);
                     this.setState({
                         errors: this.state.errors.concat(err),
@@ -198,10 +198,10 @@ class MessageForm extends React.Component<MessageFormProps>{
                 }, 
                 () => {
                     if(this.state.uploadTask){
-                        this.state.uploadTask.snapshot.ref.getDownloadURL().then(downloadUrl => {
+                        this.state.uploadTask.snapshot.ref.getDownloadURL().then((downloadUrl: any) => {
                             this.sendFileMessage(downloadUrl, ref, pathToUpload);
                         })
-                       .catch(err => {
+                       .catch((err: any) => {
                            console.error(err);
                            this.setState({
                                errors: this.state.errors.concat(err),
@@ -216,14 +216,14 @@ class MessageForm extends React.Component<MessageFormProps>{
         })
     }
 
-    sendFileMessage = (fileUrl: any, ref: firebase.database.Reference, pathToUpload: any) => {
+    sendFileMessage = (fileUrl: any, ref:any, pathToUpload: any) => {
         ref.child(pathToUpload)
             .push()
             .set(this.createMessage(fileUrl))
             .then(() => {
                 this.setState({ uploadState: "done"})
             })
-            .catch(err => {
+            .catch((err: any) => {
                 console.error(err);
                 this.setState({
                     errors: this.state.errors.concat(err),
